@@ -14,7 +14,7 @@ async function DeleteRoles(){
             return false;
         } else {
             console.log('All roles has been removed!');
-            //res.status(HttpStatus.NO_CONTENT).json({result: data});
+            return true;
         }
     })
 }
@@ -69,16 +69,18 @@ async function DeleteRents(){
 
 async function DeleteAll(req, res, next){
     let deleted=true;
+    let err=new Error("Not all deleted");
+	err.statusCode = HttpStatus.NOT_FOUND;
     deleted=await DeleteRoles();
-    if(deleted==false) return next(error);
+    if(deleted==false) return next(err);
     deleted=await DeleteBranches();
-    if(deleted==false) return next(error);
+    if(deleted==false) return next(err);
     deleted=await DeleteCarTypes();
-    if(deleted==false) return next(error);
+    if(deleted==false) return next(err);
     deleted=await DeleteCars();
-    if(deleted==false) return next(error);
+    if(deleted==false) return next(err);
     deleted=await DeleteRents();
-    if(deleted==false) return next(error);
+    if(deleted==false) return next(err);
 
     res.status(HttpStatus.NO_CONTENT).json({result: "Everyrthing Deleted"});
 }
