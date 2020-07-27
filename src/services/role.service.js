@@ -5,7 +5,7 @@ const roleSchema = require("../models/role");
 var HttpStatus = require('http-status-codes');
 
 // Get Roles
-function GetAllRoles(req, res){
+function GetAllRoles(req, res, next){
     roleSchema.find({},(error, response) => {
         if (error) {
             console.error(error);

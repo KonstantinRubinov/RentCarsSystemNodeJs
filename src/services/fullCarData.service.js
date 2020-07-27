@@ -34,7 +34,7 @@ function GetCarAllData(req, res, next){
     joinedModels.Car.findOne({carNumber:carNumber}).populate("carType").populate("carBranch").sort('carNumber')
     .then(function(response) {
         response=AddItem(response);
-        console.error(response);
+        //console.debug(response);
         res.status(HttpStatus.OK).json(response);
     })
     .catch(function(error) {

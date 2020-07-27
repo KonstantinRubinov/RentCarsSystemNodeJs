@@ -6,7 +6,7 @@ const carTypeSchema = require("../models/CarType");
 var HttpStatus = require('http-status-codes');
 
 // Get Car Types
-function GetAllCarTypes(req, res){
+function GetAllCarTypes(req, res, next){
     carTypeSchema.find({},(error, response) => {
         if (error) {
             console.error(error);

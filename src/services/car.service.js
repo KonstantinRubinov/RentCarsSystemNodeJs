@@ -4,9 +4,10 @@ const express = require("express");
 const carSchema = require("../models/Car");
 const carPictureSchema = require("../models/CarPicture");
 var HttpStatus = require('http-status-codes');
+var fs = require('fs');
 
 // Get Cars
-function GetAllCars(req, res){
+function GetAllCars(req, res, next){
     carSchema.find({},(error, response) => {
         if (error) {
             console.error(error);
@@ -75,6 +76,13 @@ function DeleteCar(req, res, next){
     })
 }
 
+function createGuid(){  
+    function S4() {  
+       return (((1+Math.random())*0x10000)|0).toString(16).substring(1);  
+    }  
+    return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();  
+}
+ 
 // UploadCarImage
 function UploadCarImage(req, res, next){
     let extension = req.body.carPicture.split(".");
@@ -105,7 +113,7 @@ function UploadCarImage(req, res, next){
 };
 
 //Get Car Images
-function GetCarImages(req, res){
+function GetCarImages(req, res, next){
     carSchema.find({},(error, response) => {
         if (error) {
             console.error(error);

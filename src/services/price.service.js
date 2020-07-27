@@ -122,7 +122,7 @@ function CheckIfCarAvaliableByRequest(req, res, next)
 	let toDate = searchModel.toDate;
 	let fromDate = searchModel.fromDate;
 
-	carForRentList = rentService.GetCarsForRentByCarNumber(carNumber);
+	let carForRentList = rentService.GetCarsForRentByCarNumber(carNumber);
 	if (carForRentList != null && carForRentList.length > 0)
 	{
 		if (toDate<carForRentList[0].rentStartDate)

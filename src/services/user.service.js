@@ -30,7 +30,7 @@ function createGuid(){
  }
 
 // Get Users
-function GetAllUsers(req, res){
+function GetAllUsers(req, res, next){
     userSchema.find((error, response) => {
         if (error) {
             console.error(error);

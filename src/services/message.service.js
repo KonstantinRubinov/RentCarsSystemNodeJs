@@ -7,7 +7,7 @@ const decoded = require("../middlewares/decoded");
 var HttpStatus = require('http-status-codes');
 
 // Get Messages
-function GetAllMessages(req, res){
+function GetAllMessages(req, res, next){
     messageSchema.find({},(error, response) => {
         if (error) {
             console.error(error);

@@ -8,7 +8,7 @@ const decoded = require("../middlewares/decoded");
 var HttpStatus = require('http-status-codes');
 
 // Get Rents
-function GetAllRents(req, res){
+function GetAllRents(req, res, next){
     rentSchema.find({},(error, response) => {
         if (error) {
             console.error(error);

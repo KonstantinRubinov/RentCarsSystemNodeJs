@@ -14,7 +14,7 @@ function createBranchModel(response)
 }
 
 // Get Branches
-function GetAllBranches(req, res){
+function GetAllBranches(req, res, next){
     branchSchema.find({},(error, response) => {
         if (error) {
             console.error(error);
@@ -27,7 +27,7 @@ function GetAllBranches(req, res){
 }
 
 // Get Branches names and ids
-function GetAllBrancheNamesIds(req, res){
+function GetAllBrancheNamesIds(req, res, next){
     branchSchema.find({},(error, response) => {
         if (error) {
             console.error(error);
