@@ -72,7 +72,7 @@ function AddBranch(req, res, next){
     // console.debug(newBranch);
     newBranch.save().then((response) => {
         res.status(HttpStatus.CREATED).json({
-            message: "Branch " + branchID + " successfully added!",
+            message: "Branch successfully added!",
             result: response
         });
     }).catch(error => {
