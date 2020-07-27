@@ -87,7 +87,7 @@ function UploadCarImage(req, res, next){
     
     let fd =  fs.openSync(filePath, 'w');
     fs.write(fd, buff, 0, buff.length, 0, function(err,written){
-        console.log( ">> "+ err );
+        console.error( ">> "+ err );
         fs.closeSync( fd );
     });
     

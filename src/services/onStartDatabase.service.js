@@ -88,7 +88,7 @@ let data = [
 
 function AddRole(newRole){
     return newRole.save().then((response) => {
-        console.log("Role successfully added!");
+        console.debug("Role successfully added!");
         //console.debug(response);
         return response;
     }).catch(error => {

@@ -33,7 +33,7 @@ function Authenticate (req, res, next){
             console.error("No response Authentication failed");
             return res.status(HttpStatus.UNAUTHORIZED).json({message: "No response Authentication failed"});
         } else {
-            //console.log("getUser " + getUser);
+            //console.debug("getUser " + getUser);
             let jwtToken = jwt.sign({
                 userNickName: getUser.userNickName,
                 userLevel: getUser.userLevel,

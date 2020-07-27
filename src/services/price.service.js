@@ -4,9 +4,9 @@ const priceLogic = require("../logics/price.logic");
 const rentService = require("../services/rent.service");
 var HttpStatus = require('http-status-codes');
 
-function PriceForOrderIfAvaliable(req, res, next)
+async function PriceForOrderIfAvaliable(req, res, next)
 {
-	let isAvaliable = CheckIfCarAvaliable(req.body.carNumber, req.body.rentStartDate, req.body.rentEndDate);
+	let isAvaliable = await CheckIfCarAvaliableAsync(req.body.carNumber, req.body.rentStartDate, req.body.rentEndDate);
 	let carForPrice={};
 	if (isAvaliable == true)
 	{
@@ -26,8 +26,11 @@ function PriceForOrderIfAvaliable(req, res, next)
 	}
 	else
 	{
-		console.error("priceForOrderIfAvaliable DateNotAvaliableException: " + "The Car Is Not Avaliable at this dates");
-		return next("priceForOrderIfAvaliable DateNotAvaliableException: " + "The Car Is Not Avaliable at this dates");
+		let errorMessage="priceForOrderIfAvaliable DateNotAvaliableException: " + "The Car Is Not Avaliable at this dates"
+		console.error(errorMessage);
+		let err=new Error(errorMessage);
+		err.statusCode = HttpStatus.FORBIDDEN;
+		return next(err);
 	}
 }
 
@@ -43,36 +46,71 @@ async function GetCarDayPrice(carNumber)
 	});
 }
 
-function CheckIfCarAvaliable(carNumber, fromDate, toDate)
+async function CheckIfCarAvaliableAsync(carNumber, fromDate, toDate)
 {
-	let carForRentList = rentService.GetCarsForRentByCarNumber(carNumber);
-	if (carForRentList != null && carForRentList.Count > 0)
+	let carForRentList = await rentService.GetCarsForRentByCarNumberPromise(carNumber);
+	//console.debug("carForRentList "+carForRentList);
+	if (carForRentList != null && carForRentList.length > 0)
 	{
 		if (toDate<carForRentList[0].rentStartDate)
 		{
-			console.log("Before All Rents");
+			//console.debug("Before All Rents");
 			return true;
 		}
-		if (fromDate>carForRentList[carForRentList.Count - 1].rentEndDate)
+		if (fromDate>carForRentList[carForRentList.length - 1].rentEndDate)
 		{
-			console.log("After All Rents");
+			//console.debug("After All Rents");
 			return true;
 		}
     
-		for (let i = 0; i < carForRentList.Count - 1; i++)
+		for (let i = 0; i < carForRentList.length - 1; i++)
 		{
 			if (fromDate>carForRentList[i].rentEndDate && toDate<carForRentList[i + 1].rentStartDate)
 			{
-				console.log("Between" + carForRentList[i].rentEndDate + "And" + carForRentList[i + 1].rentStartDate + "Rents");
+				//console.debug("Between" + carForRentList[i].rentEndDate + "And" + carForRentList[i + 1].rentStartDate + "Rents");
 				return true;
 			}
 		}
-		console.log("Allready Rented");
+		//console.debug("Allready Rented");
 		return false;
 	}
 	else
 	{
-		console.log("First To Rent");
+		//console.debug("First To Rent");
+		return true;
+	}
+}
+
+function CheckIfCarAvaliable(carNumber, fromDate, toDate)
+{
+	let carForRentList = rentService.GetCarsForRentByCarNumber(carNumber);
+	if (carForRentList != null && carForRentList.length > 0)
+	{
+		if (toDate<carForRentList[0].rentStartDate)
+		{
+			//console.debug("Before All Rents");
+			return true;
+		}
+		if (fromDate>carForRentList[carForRentList.length - 1].rentEndDate)
+		{
+			//console.debug("After All Rents");
+			return true;
+		}
+    
+		for (let i = 0; i < carForRentList.length - 1; i++)
+		{
+			if (fromDate>carForRentList[i].rentEndDate && toDate<carForRentList[i + 1].rentStartDate)
+			{
+				//console.debug("Between" + carForRentList[i].rentEndDate + "And" + carForRentList[i + 1].rentStartDate + "Rents");
+				return true;
+			}
+		}
+		//console.debug("Allready Rented");
+		return false;
+	}
+	else
+	{
+		//console.debug("First To Rent");
 		return true;
 	}
 }
@@ -85,18 +123,18 @@ function CheckIfCarAvaliableByRequest(req, res, next)
 	let fromDate = searchModel.fromDate;
 
 	carForRentList = rentService.GetCarsForRentByCarNumber(carNumber);
-	if (carForRentList != null && carForRentList.Count > 0)
+	if (carForRentList != null && carForRentList.length > 0)
 	{
 		if (toDate<carForRentList[0].rentStartDate)
 		{
 			res.status(HttpStatus.OK).json(true);
 		}
-		if (fromDate>carForRentList[carForRentList.Count - 1].rentEndDate)
+		if (fromDate>carForRentList[carForRentList.length - 1].rentEndDate)
 		{
 			res.status(HttpStatus.OK).json(true);
 		}
     
-		for (let i = 0; i < carForRentList.Count - 1; i++)
+		for (let i = 0; i < carForRentList.length - 1; i++)
 		{
 			if (fromDate>carForRentList[i].rentEndDate && toDate<carForRentList[i + 1].rentStartDate)
 			{

@@ -68,7 +68,7 @@ app.use('/api', allApi)
 // Define PORT
 const port = process.env.PORT || dbConfig.PORT;
 const server = app.listen(port, () => {
-    console.log('Connected to port ' + port);
+    //console.debug('Connected to port ' + port);
     onStartDatabaseService.AddMongoData();
 })
 

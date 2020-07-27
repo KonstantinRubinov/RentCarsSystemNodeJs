@@ -107,8 +107,8 @@ function AddUser(req, res, next){
             fs.write(fd, buff, 0, buff.length, 0, function(error,written){
                 if (error!=null){
                     fs.closeSync( fd );
-                    console.log("User not created! " + error);
-                    res.status(500).json({error: error});
+                    console.error("User not created! " + error);
+                    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({error: error});
                 }
                 fs.closeSync( fd );
             });
@@ -116,8 +116,8 @@ function AddUser(req, res, next){
             //console.debug(user);
             user.save(
                 // function (error) {
-                //     console.log("User not created! " + error);
-                //     res.status(500).json({error: error});
+                //     console.error("User not created! " + error);
+                //     res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({error: error});
                 // }
             ).then((response) => {
                 response.userPassword = req.body.userPassword;

@@ -27,10 +27,40 @@ async function GetCarsForRentByCarNumber(carNumber){
             console.error(error);
             return error;
         } else {
-            //console.debug(response + " Rents");
-            return response;
+            if(Array.isArray(response)){
+                //console.debug("GetCarsForRentByCarNumberArray "+response);
+                return response;
+            } else{
+                let myArray=[];
+                myArray.push(response);
+                //console.debug("GetCarsForRentByCarNumberObject "+response);
+                return myArray;
+            }
         }
     });
+}
+
+// Get Rents by Car
+async function GetCarsForRentByCarNumberPromise(carNumber){
+    return new Promise(function(resolve, reject) {
+        rentSchema.find({carNumber: carNumber}).sort({ rentStartDate: 1 }).exec(function (error, response) {
+            if (error) {
+                console.error(error);
+                resolve(error);
+            } else {
+                if(Array.isArray(response)){
+                    //console.debug("GetCarsForRentByCarNumberPromiseArray "+response);
+                    resolve(response);
+                } else{
+                    let myArray=[];
+                    myArray.push(response);
+                    //console.debug("GetCarsForRentByCarNumberPromiseObject "+response);
+                    resolve(myArray);
+                }
+            }
+        });
+        
+    })
 }
 
 // Get AllData by UserId
@@ -66,9 +96,9 @@ function AddRent(req, res, next){
     const userID = decoded(req).userID;
     const newRent = new rentSchema(req.body);
     newRent.userID = userID;
-    console.log("newRent "+newRent);
+    //console.debug("newRent "+newRent);
     newRent.save().then((response) => {
-        console.log("Rent successfully added! " + response);
+        //console.debug("Rent successfully added! " + response);
         res.status(HttpStatus.CREATED).json({message: "Rent successfully added!", result: response});
     }).catch(error => {
         console.error(error);
@@ -187,6 +217,7 @@ function GetRentsByCar(req, res, next){
 
 module.exports ={
     GetCarsForRentByCarNumber:GetCarsForRentByCarNumber,
+    GetCarsForRentByCarNumberPromise:GetCarsForRentByCarNumberPromise,
     GetAllRents:GetAllRents,
     GetRentsByCar:GetRentsByCar,
     GetRentsByUser:GetRentsByUser,
