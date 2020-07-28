@@ -69,7 +69,7 @@ async function DeleteRents(){
 
 async function DeleteAll(req, res, next){
     let deleted=true;
-    let err: any;
+    let err;
         err=new Error("Not all deleted");
 	    err.statusCode = HttpStatus.NOT_FOUND;
     deleted=await DeleteRoles();
