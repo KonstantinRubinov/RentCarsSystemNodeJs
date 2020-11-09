@@ -1,5 +1,5 @@
 C:\data\db
-cd to C:\Program Files\MongoDB\Server\4.2\bin
+cd C:\Program Files\MongoDB\Server\4.2\bin
 mongod
 
 mongo
