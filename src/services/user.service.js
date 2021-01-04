@@ -80,12 +80,33 @@ function AddUser(req, res, next){
         return res.status(HttpStatus.UNPROCESSABLE_ENTITY).jsonp(errors.array());
     } else {
         bcrypt.hash(req.body.userPassword, 10).then((hash) => {
-            let extension = req.body.userPicture.split(".");
-            extension = extension[extension.length-1];
-            let pictureName = createGuid()+"."+extension;
-            let filePath = "./src/assets/images/users/"+pictureName;
-            req.body.userImage = req.body.userImage.replace(/^data:image\/\w+;base64,/, "");
-            req.body.userImage = req.body.userImage.replace(/ /g, '+');
+            let extension = "";
+            let pictureName = "";
+            let filePath="";
+            let buff="";
+            let fd="";
+
+            if(req.body.userPicture!==undefined && req.body.userPicture!==null && req.body.userPicture!==""){
+                extension = req.body.userPicture.split(".");
+                extension = extension[extension.length-1];
+                let pictureName = createGuid()+"."+extension;
+                filePath = "./src/assets/images/users/"+pictureName;
+                req.body.userImage = req.body.userImage.replace(/^data:image\/\w+;base64,/, "");
+                req.body.userImage = req.body.userImage.replace(/ /g, '+');
+                buff = new Buffer.from(req.body.userImage, 'base64');
+                fd =  fs.openSync(filePath, 'w');
+                fs.write(fd, buff, 0, buff.length, 0, function(error,written){
+                    if (error!=null){
+                        fs.closeSync( fd );
+                        console.log("User not created! " + error);
+                        res.status(500).json({error: error});
+                    }
+                    fs.closeSync( fd );
+                });
+                
+                req.body.userImage = "";
+            }
+            
             if (req.body.userLevel < 1)
 		    {
 		    	req.body.userLevel = 1;
@@ -102,17 +123,7 @@ function AddUser(req, res, next){
                 userPicture: pictureName,
                 userLevel: req.body.userLevel
             });
-            let buff = new Buffer.from(req.body.userImage, 'base64');
-            let fd =  fs.openSync(filePath, 'w');
-            fs.write(fd, buff, 0, buff.length, 0, function(error,written){
-                if (error!=null){
-                    fs.closeSync( fd );
-                    console.error("User not created! " + error);
-                    res.status(HttpStatus.INTERNAL_SERVER_ERROR).json({error: error});
-                }
-                fs.closeSync( fd );
-            });
-            req.body.userImage = "";
+            
             //console.debug(user);
             user.save(
                 // function (error) {
