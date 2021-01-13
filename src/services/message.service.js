@@ -1,108 +1,66 @@
-// services/message.service.js
-
-const express = require("express");
-const router = express.Router();
 const messageSchema = require("../models/Message");
-const decoded = require("../middlewares/decoded");
-var HttpStatus = require('http-status-codes');
 
-// Get Messages
-function GetAllMessages(req, res, next){
-    messageSchema.find({},(error, response) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            //console.debug(response + " Messages");
-            res.status(HttpStatus.OK).json(response);
-        }
-    })
+function GetAllMessages(){
+    try {
+        var messages = messageSchema.find();
+        return messages;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Get Message by userID
-function GetMessagesByUser(req, res, next){
-    const userID = req.params.userID;
-    messageSchema.find({userID: userID}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            res.status(HttpStatus.OK).json({result: data})
-        }
-    })
+function GetMessagesByUser(userID){
+    try {
+        var messages = messageSchema.find({userID: userID});
+        return messages;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Get Message by messageID
-function GetMessageById(req, res, next){
-    const messageID = req.params.messageID;
-    messageSchema.findOne({messageID: messageID}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            res.status(HttpStatus.OK).json({result: data})
-        }
-    })
+function GetMessageById(messageID){
+    try {
+        var message = messageSchema.findOne({messageID: messageID});
+        return message;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Add Message
-function AddMessage(req, res, next){
-    const userID = decoded(req).userID;
-    const newMessage = new messageSchema(req.body);
+function AddMessage(userID, body){
+    const newMessage = new branchSchema(body);
     newMessage.userID = userID;
-    // console.debug(newMessage);
-    newMessage.save().then((response) => {
-        res.status(HttpStatus.CREATED).json({
-            message: "Message successfully added!",
-            result: response
-        });
+    return newMessage.save().then((response) => {
+        return response;
     }).catch(error => {
-        console.error(error);
-        return next(error);
+        throw Error(error);
     });
 };
 
-// Update Message
-function UpdateMessage(req, res, next){
-    const messageID = req.params.messageID;
-    const userID = decoded(req).userID;
-    messageSchema.findOneAndUpdate({messageID: messageID, userID: userID}, {$set: req.body},
-        (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('Message ' + messageID + ' successfully updated!');
-            res.status(HttpStatus.OK).json(data);
-        }
-    })
+function UpdateMessage(messageID, userID, body){
+    try {
+        var message = messageSchema.findOneAndUpdate({messageID: messageID, userID: userID}, {$set: body});
+        return message;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-
-// Delete Message messageID
-function DeleteMessage(req, res, next){
-    const messageID = req.params.messageID;
-    messageSchema.findOneAndRemove({messageID: messageID}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('Message ' + messageID + ' successfully deleted!');
-            res.status(HttpStatus.NO_CONTENT).json({result: data});
-        }
-    })
+function DeleteMessage(messageID){
+    try {
+        var message = messageSchema.findOneAndRemove({messageID: messageID});
+        return message;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Delete Messages By User
-function DeleteMessagesByUser(req, res, next){
-    const userID = req.params.userID;
+function DeleteMessagesByUser(userID){
     messageSchema.remove({userID: userID}, (error, data) => {
         if (error) {
-            console.error(error);
-            return next(error);
+            throw Error(error);
         } else {
-            console.log('Messagees ' + userID + ' successfully deleted!');
-            res.status(HttpStatus.NO_CONTENT).json({result: data});
+            return data;
         }
     })
 }

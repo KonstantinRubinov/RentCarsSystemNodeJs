@@ -1,162 +1,97 @@
-// services/rent.service.js
-
-const express = require("express");
 const rentSchema = require("../models/Rent");
 const joinedModels = require("../models/JoinedModels");
-const carSchema = require("../models/Car");
-const decoded = require("../middlewares/decoded");
-var HttpStatus = require('http-status-codes');
 
-// Get Rents
-function GetAllRents(req, res, next){
-    rentSchema.find({},(error, response) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            //console.debug(response + " Rents");
-            res.status(HttpStatus.OK).json(response);
-        }
-    })
-}
-
-// Get Rents by Car
-async function GetCarsForRentByCarNumber(carNumber){
-    return rentSchema.find({carNumber: carNumber}).sort({ rentStartDate: 1 }).exec(function (error, response) {
-        if (error) {
-            console.error(error);
-            return error;
-        } else {
-            if(Array.isArray(response)){
-                //console.debug("GetCarsForRentByCarNumberArray "+response);
-                return response;
-            } else{
-                let myArray=[];
-                myArray.push(response);
-                //console.debug("GetCarsForRentByCarNumberObject "+response);
-                return myArray;
-            }
-        }
-    });
-}
-
-// Get Rents by Car
-async function GetCarsForRentByCarNumberPromise(carNumber){
-    return new Promise(function(resolve, reject) {
-        rentSchema.find({carNumber: carNumber}).sort({ rentStartDate: 1 }).exec(function (error, response) {
-            if (error) {
-                console.error(error);
-                resolve(error);
-            } else {
-                if(Array.isArray(response)){
-                    //console.debug("GetCarsForRentByCarNumberPromiseArray "+response);
-                    resolve(response);
-                } else{
-                    let myArray=[];
-                    myArray.push(response);
-                    //console.debug("GetCarsForRentByCarNumberPromiseObject "+response);
-                    resolve(myArray);
-                }
-            }
-        });
-        
-    })
-}
-
-// Get AllData by UserId
-function GetRentsByUser(req, res, next){
-    const userID = req.params.userID;
-    joinedModels.Rent.find({ userID: userID }).populate("car").populate("carType").populate("carBranch")
-    .then(function(response) {
-        response.forEach(AddItem);
-        res.status(HttpStatus.OK).json(fullCars);
-    })
-    .catch(function(error) {
-        console.error(error);
-        return next(error);
-    });
-};
-
-// Get Rent by Number
-function GetRentByNumber(req, res, next){
-    const rentNumber = req.params.rentNumber;
-    rentSchema.findOne({ rentNumber: rentNumber }), (error, response) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            //console.debug(response + " Rents");
-            res.status(HttpStatus.OK).json(response);
-        }
+function GetAllRents(){
+    try {
+        var rents = rentSchema.find();
+        return rents;
+    } catch (error) {
+        throw Error(error);
     }
 }
 
-// Add Rent
-function AddRent(req, res, next){
-    const userID = decoded(req).userID;
-    const newRent = new rentSchema(req.body);
-    newRent.userID = userID;
-    //console.debug("newRent "+newRent);
-    newRent.save().then((response) => {
-        //console.debug("Rent successfully added! " + response);
-        res.status(HttpStatus.CREATED).json({message: "Rent successfully added!", result: response});
-    }).catch(error => {
-        console.error(error);
-        return next(error);
+async function GetCarsForRentByCarNumber(carNumber){
+    return rentSchema.find({carNumber: carNumber}).sort({ rentStartDate: 1 })
+    .then(response => {              
+        if(Array.isArray(response)){
+            return response;
+        } else{
+            let myArray=[];
+            myArray.push(response);
+            return myArray;
+        }
+    })
+    .catch(error => 
+        {
+            throw Error(error);
+        }
+    );
+}
+
+function GetRentsByUser(userID){
+    return joinedModels.Rent.find({ userID: userID }).populate("car").populate("carType").populate("carBranch")
+    .then(function(response) {
+        response.forEach(AddItem);
+        return fullCars;
+    })
+    .catch(function(error) {
+        throw Error(error);
     });
 };
 
-// Update Rent
-function UpdateRent(req, res, next){
-    const rentNumber = req.params.rentNumber;
-    rentSchema.findOneAndUpdate({rentNumber: rentNumber}, {$set: req.body}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('Rent ' + rentNumber + ' successfully updated!');
-            res.status(HttpStatus.OK).json(data);
-        }
-    })
+function GetRentByNumber(rentNumber){
+    try {
+        var rent = rentSchema.findOne({rentNumber: rentNumber});
+        return rent;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Delete Rent By Rent Number
-function DeleteRentByNumber(req, res, next){
-    const rentNumber = req.params.rentNumber;
-    rentSchema.findOneAndRemove({rentNumber: rentNumber}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('Rent ' + rentNumber + ' successfully deleted!');
-            res.status(HttpStatus.NO_CONTENT).json({result: data});
-        }
-    })
+function AddRent(userID, body){
+    const newRent = new rentSchema(body);
+    newRent.userID = userID;
+    return newRent.save().then((response) => {
+        return response;
+    }).catch(error => {
+        throw Error(error);
+    });
+};
+
+function UpdateRent(rentNumber, body){
+    try {
+        var rent = rentSchema.findOneAndUpdate(rentNumber, {$set: body});
+        return rent;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Delete Rents By Car Number
-function DeleteRentsByCar(req, res, next){
-    const carNumber = req.params.carNumber;
+function DeleteRentByNumber(rentNumber){
+    try {
+        var rent = rentSchema.findOneAndRemove({rentNumber: rentNumber});
+        return rent;
+    } catch (error) {
+        throw Error(error);
+    }
+}
+
+function DeleteRentsByCar(carNumber){
     rentSchema.remove({carNumber: carNumber}, (error, data) => {
         if (error) {
-            console.error(error);
-            return next(error);
+            throw Error(error);
         } else {
-            console.log('Rents ' + carNumber + ' successfully deleted!');
-            res.status(HttpStatus.NO_CONTENT).json({result: data});
+            return data;
         }
     })
 }
 
-// Delete Rents
-function DeleteRents(req, res, next){
-    rentSchema.remove({}, (error, data) => {
+function DeleteRents(){
+    rentSchema.deleteMany((error, data) => {
         if (error) {
-            console.error(error);
-            return next(error);
+            throw Error(error);
         } else {
-            console.log('Rents successfully deleted!');
-            res.status(HttpStatus.NO_CONTENT).json({result: data});
+            return data;
         }
     })
 }
@@ -188,43 +123,25 @@ function AddItem(item){
     }
 }
 
-// Get Car by number
-function GetOneCar(carNumber){
-    carSchema.findOne({carNumber: carNumber}, (error, response) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            //console.debug(response + " Cars");
-            return response;
-        }
+function GetRentsByCar(carNumber){
+    return rentSchema.find({ carNumber: carNumber }).sort({ rentStartDate: 1 })
+    .then(function(response) {
+        return response;
     })
-}
-
-// Get Rents by Car
-function GetRentsByCar(req, res, next){
-    const carNumber = req.params.carNumber;
-    rentSchema.find({carNumber: carNumber}).sort({ rentStartDate: 1 }).exec(function (error, response) {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            //console.debug(response + " Rents");
-            res.status(HttpStatus.OK).json(response);
-        }
+    .catch(function(error) {
+        throw Error(error);
     });
 }
 
 module.exports ={
-    GetCarsForRentByCarNumber:GetCarsForRentByCarNumber,
-    GetCarsForRentByCarNumberPromise:GetCarsForRentByCarNumberPromise,
     GetAllRents:GetAllRents,
-    GetRentsByCar:GetRentsByCar,
+    GetCarsForRentByCarNumber:GetCarsForRentByCarNumber,
     GetRentsByUser:GetRentsByUser,
     GetRentByNumber:GetRentByNumber,
     AddRent:AddRent,
     UpdateRent:UpdateRent,
     DeleteRentByNumber:DeleteRentByNumber,
     DeleteRentsByCar:DeleteRentsByCar,
-    DeleteRents:DeleteRents
+    DeleteRents:DeleteRents,
+    GetRentsByCar:GetRentsByCar
 };

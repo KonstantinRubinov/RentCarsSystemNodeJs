@@ -1,8 +1,4 @@
-// services/branch.service.js
-
-const express = require("express");
 const branchSchema = require("../models/Branch");
-var HttpStatus = require('http-status-codes');
 
 function createBranchModel(response)
 {
@@ -13,112 +9,76 @@ function createBranchModel(response)
 	return branchModel;
 }
 
-// Get Branches
-function GetAllBranches(req, res, next){
-    branchSchema.find({},(error, response) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            //console.debug(response + " Branches");
-            res.status(HttpStatus.OK).json(response);
-        }
-    })
+function GetAllBranches(){
+    try {
+        var branches = branchSchema.find();
+        return branches;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Get Branches names and ids
-function GetAllBrancheNamesIds(req, res, next){
-    branchSchema.find({},(error, response) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            response = createBranchModel(response);
-            //console.debug(response + " Branches");
-            res.status(HttpStatus.OK).json(response);
-        }
-    })
+function GetAllBrancheNamesIds(){
+    try {
+        var branches = branchSchema.find();
+        branches = createBranchModel(branches);
+        return branches;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Get Branch by id
-function GetOneBranch(req, res, next){
-    const branchID = req.params.branchID;
-    branchSchema.findOne({branchID: branchID}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            res.status(HttpStatus.OK).json({result: data});
-        }
-    })
+function GetOneBranch(branchID){
+    try {
+        var branch = branchSchema.findOne({branchID: branchID});
+        return branch;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Get Branch by address
-function GetOneBranchByAddress(req, res, next){
-    const branchAddress = req.params.branchAddress;
-    branchSchema.findOne({branchAddress: branchAddress}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            res.status(HttpStatus.OK).json({result: data})
-        }
-    })
+function GetOneBranchByAddress(branchAddress){
+    try {
+        var branch = branchSchema.findOne({branchAddress: branchAddress});
+        return branch;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Add Branch
-function AddBranch(req, res, next){
-    const newBranch = new branchSchema(req.body);
-    // console.debug(newBranch);
-    newBranch.save().then((response) => {
-        res.status(HttpStatus.CREATED).json({
-            message: "Branch successfully added!",
-            result: response
-        });
+function AddBranch(body){
+    const newBranch = new branchSchema(body);
+    return newBranch.save().then((response) => {
+        return response;
     }).catch(error => {
-        console.error(error);
-        return next(error);
+        throw Error(error);
     });
 };
 
-// Update Movie
-function UpdateBranch(req, res, next){
-    const branchID = req.params.branchID;
-    branchSchema.findOneAndUpdate({branchID: branchID}, {$set: req.body}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('Branch ' + branchID + ' successfully updated!');
-            res.status(HttpStatus.OK).json(data);
-        }
-    })
+function UpdateBranch(branchID, body){
+    try {
+        var branch = branchSchema.findOneAndUpdate(branchID, {$set: body});
+        return branch;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-
-// Delete Branch
-function DeleteBranch(req, res, next){
-    const branchID = req.params.branchID;
-    branchSchema.findOneAndRemove({branchID: branchID}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('Branch ' + branchID + ' successfully deleted!');
-            res.status(HttpStatus.NO_CONTENT).json({result: data})
-        }
-    })
+function DeleteBranch(branchID){
+    try {
+        var branch = branchSchema.findOneAndRemove({branchID: branchID});
+        return branch;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Delete Branches
-function DeleteBranches(req, res, next){
+function DeleteBranches(){
     branchSchema.deleteMany((error, data) => {
         if (error) {
-            console.error(error);
-            return next(error);
+            throw Error(error);
         } else {
-            console.log('All branches has been removed!');
-            res.status(HttpStatus.NO_CONTENT).json({result: data});
+            return data;
         }
     })
 }

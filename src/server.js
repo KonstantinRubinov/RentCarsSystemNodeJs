@@ -6,21 +6,19 @@ const dbConfig = require('./database/db');
 var HttpStatus = require('http-status-codes');
 
 // Express APIs
-const branchApi = require('./controllers/branch.controller');
-const carApi = require('./controllers/car.controller');
-const cartypeApi = require('./controllers/cartype.controller');
-const loginApi = require('./controllers/login.controller');
-const messageApi = require('./controllers/message.controller');
-const rentApi = require('./controllers/rent.controller');
-const roleApi = require('./controllers/role.controller');
-const searchApi = require('./controllers/search.controller');
-const startApi = require('./controllers/start.controller');
-const userApi = require('./controllers/user.controller');
-const allApi = require('./controllers/all.controller');
+const branchApi = require('./routes/branch.route');
+const carApi = require('./routes/car.route');
+const cartypeApi = require('./routes/cartype.route');
+const loginApi = require('./routes/login.route');
+const messageApi = require('./routes/message.route');
+const rentApi = require('./routes/rent.route');
+const roleApi = require('./routes/role.route');
+const searchApi = require('./routes/search.route');
+const startApi = require('./routes/start.route');
+const userApi = require('./routes/user.route');
+const allApi = require('./routes/all.route');
 
 const onStartDatabaseService = require('./services/onStartDatabase.service');
-
-
 
 // MongoDB conection
 mongoose.Promise = global.Promise;
@@ -37,7 +35,6 @@ mongoose.connect(dbConfig.db, {
 
 // Remvoe MongoDB warning error
 mongoose.set('useCreateIndex', true);
-
 
 // Express settings
 const app = express();
@@ -82,7 +79,7 @@ app.use((req, res, next) => {
 app.use(function (error, req, res, next) {
     console.error(error.message);
     if (!error.statusCode){
-        error.statusCode = HttpStatus.INTERNAL_SERVER_ERROR;
+        error.statusCode = HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR;
     } 
     res.status(error.statusCode).send(error.message);
 });

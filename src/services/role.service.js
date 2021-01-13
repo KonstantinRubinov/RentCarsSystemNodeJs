@@ -1,119 +1,74 @@
-// services/role.service.js
-
-const express = require("express");
 const roleSchema = require("../models/role");
-var HttpStatus = require('http-status-codes');
 
-// Get Roles
-function GetAllRoles(req, res, next){
-    roleSchema.find({},(error, response) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            //console.debug(response + " Cars");
-            res.status(HttpStatus.OK).json(response);
-        }
-    })
+function GetAllRoles(){
+    try {
+        var roles = roleSchema.find();
+        return roles;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Get Role by level
-function GetOneRoleLevel(req, res, next){
-    const userLevel = req.params.userLevel;
-    roleSchema.findOne({userLevel: userLevel}, (error, response) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            //console.debug(response + " Cars");
-            res.status(HttpStatus.OK).json(response);
-        }
-    })
+function GetOneRoleLevel(userLevel){
+    try {
+        var role = roleSchema.findOne({userLevel: userLevel});
+        return role;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Get Role by role
-function GetOneRoleRole(req, res, next){
-    const userRole = req.params.userRole;
-    roleSchema.findOne({userRole: userRole}, (error, response) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            //console.debug(response + " Cars");
-            res.status(HttpStatus.OK).json(response);
-        }
-    })
+function GetOneRoleRole(userRole){
+    try {
+        var role = roleSchema.findOne({userRole: userRole});
+        return role;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Add Role
-function AddRole(req, res, next){
-        const newRole = new roleSchema(req.body);
-        // console.debug(newCar);
-        newRole.save().then((response) => {
-            console.log('Role successfully added!')
-            res.status(HttpStatus.CREATED).json({
-                message: "Role successfully added!",
-                result: response
-            });
-        }).catch(error => {
-            console.error(error);
-            return next(error);
-        });
+function AddRole(body){
+    const newRole = new roleSchema(body);
+    return newRole.save().then((response) => {
+        return response;
+    }).catch(error => {
+        throw Error(error);
+    });
 }
 
-// Update Role
-function UpdateRole(req, res, next){
-    const userLevel = req.params.userLevel;
-    roleSchema.findOneAndUpdate({userLevel: userLevel}, {
-        $set: req.body
-    }, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('Role ' + userLevel + ' successfully updated!')
-            res.status(HttpStatus.OK).json(data);
-        }
-    })
+function UpdateRole(userLevel, body){
+    try {
+        var role = roleSchema.findOneAndUpdate(userLevel, {$set: body});
+        return role;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Delete Car By Level
-function DeleteRoleLevel(req, res, next){
-    const userLevel = req.params.userLevel;
-    roleSchema.findOneAndRemove({userLevel: userLevel}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('Role ' + userLevel + ' successfully deleted!');
-            res.status(HttpStatus.NO_CONTENT).json({result: data})
-        }
-    })
+function DeleteRoleLevel(userLevel){
+    try {
+        var role = roleSchema.findOneAndRemove({userLevel: userLevel});
+        return role;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Delete Car By Role
-function DeleteRoleRole(req, res, next){
-    const userRole = req.params.userRole;
-    roleSchema.findOneAndRemove({userRole: userRole}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('Role ' + userRole + ' successfully deleted!');
-            res.status(HttpStatus.NO_CONTENT).json({result: data});
-        }
-    })
+function DeleteRoleRole(userRole){
+    try {
+        var role = roleSchema.findOneAndRemove({userRole: userRole});
+        return role;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Delete All Roles
-function DeleteAllRoles(req, res, next){
+function DeleteAllRoles(){
     roleSchema.deleteMany((error, data) => {
         if (error) {
-            console.error(error);
-            return next(error);
+            throw Error(error);
         } else {
-            console.log('All roles has been removed!');
-            res.status(HttpStatus.NO_CONTENT).json({result: data});
+            return data;
         }
     })
 }

@@ -1,5 +1,3 @@
-// services/start.service.js
-
 function GetHtml(req, res){
     res.sendFile('index.html', { root: "./src/html" } );
 }

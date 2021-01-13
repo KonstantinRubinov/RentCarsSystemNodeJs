@@ -1,5 +1,3 @@
-// Delete All
-const express = require("express");
 const branchSchema = require("../models/Branch");
 const carSchema = require("../models/Car");
 const roleSchema = require("../models/role");
@@ -67,23 +65,23 @@ async function DeleteRents(){
     })
 }
 
-async function DeleteAll(req, res, next){
+async function DeleteAll(){
     let deleted=true;
     let err;
         err=new Error("Not all deleted");
-	    err.statusCode = HttpStatus.NOT_FOUND;
+	    err.statusCode = HttpStatus.StatusCodes.INTERNAL_SERVER_ERROR;
     deleted=await DeleteRoles();
-    if(deleted==false) return next(err);
+    if(deleted==false) return err;
     deleted=await DeleteBranches();
-    if(deleted==false) return next(err);
+    if(deleted==false) return err;
     deleted=await DeleteCarTypes();
-    if(deleted==false) return next(err);
+    if(deleted==false) return err;
     deleted=await DeleteCars();
-    if(deleted==false) return next(err);
+    if(deleted==false) return err;
     deleted=await DeleteRents();
-    if(deleted==false) return next(err);
+    if(deleted==false) return err;
 
-    res.status(HttpStatus.NO_CONTENT).json({result: "Everyrthing Deleted"});
+    return deleted;
 }
 
 module.exports ={

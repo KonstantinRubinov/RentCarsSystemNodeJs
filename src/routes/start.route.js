@@ -1,5 +1,3 @@
-// controllers/start.controller.js
-
 const express = require("express");
 const router = express.Router();
 const startService = require("../services/start.service");

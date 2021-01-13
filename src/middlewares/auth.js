@@ -1,5 +1,3 @@
-// middlewares/auth.js
-
 const jwt = require("jsonwebtoken");
 var HttpStatus = require('http-status-codes');
 
@@ -10,6 +8,6 @@ module.exports = (req, res, next) => {
         next();
     } catch (error) {
         console.error("No token provided");
-        res.status(HttpStatus.UNAUTHORIZED).json({ message: "No token provided" });
+        res.status(HttpStatus.StatusCodes.UNAUTHORIZED).json({ message: "No token provided" });
     }
 };

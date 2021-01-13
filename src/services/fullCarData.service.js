@@ -1,10 +1,7 @@
-const express = require("express");
 const joinedModels = require("../models/JoinedModels");
 const priceService = require("./price.service");
-var HttpStatus = require('http-status-codes');
 
 function AddItem(item){
-    //console.debug(item);
     if(item!=null && item.carType!=null && item.carBranch!=null){
         let model = {
             carNumber:item.carNumber,
@@ -27,19 +24,15 @@ function AddItem(item){
         return model;
     }
 }
-    
-// Get GetCarAllData by carNumber
-function GetCarAllData(req, res, next){
-    const carNumber = req.params.carNumber;
-    joinedModels.Car.findOne({carNumber:carNumber}).populate("carType").populate("carBranch").sort('carNumber')
+
+function GetCarAllData(carNumber){
+    return joinedModels.Car.findOne({carNumber:carNumber}).populate("carType").populate("carBranch").sort('carNumber')
     .then(function(response) {
         response=AddItem(response);
-        //console.debug(response);
-        res.status(HttpStatus.OK).json(response);
+        return response;
     })
     .catch(function(error) {
-        console.error(error);
-        return next(error);
+        throw Error(error);
     });
 };
 

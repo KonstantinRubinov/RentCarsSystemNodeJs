@@ -1,5 +1,3 @@
-// logics/price.logic.js
-
 function DifferenceBetweenDatesInDays(date2, date1)
 {
     var difference_In_Time = new Date(date2).getTime() - new Date(date1).getTime();

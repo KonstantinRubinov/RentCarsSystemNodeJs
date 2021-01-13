@@ -1,5 +1,3 @@
-// middlewares/decoded.js
-
 const jwt = require("jsonwebtoken");
 
 module.exports = (req) => {

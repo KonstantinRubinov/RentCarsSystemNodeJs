@@ -1,8 +1,6 @@
-// services/search.service.js
 const joinedModels = require("../models/JoinedModels");
 const priceService = require("./price.service");
 const priceLogic = require("../logics/price.logic");
-var HttpStatus = require('http-status-codes');
 
 let fullCars=[];
 let searchReturnModel = {fullCarsData:"", fullCarsDataLenth:0, fullCarsDataPage:0};
@@ -49,77 +47,56 @@ function EditArray(item, searchModel) {
 	}
 }
 
-function GetAllCarsBySearch(req, res, next)
+function GetAllCarsBySearch(page, carsNum, searchModel)
 {
-    //console.debug("req.headers "+JSON.stringify(req.headers));
-
-    let page = req.headers.page;
-    //console.debug("page "+req.headers.page);
-
-    let carsNum = 5;
-    if(req.headers.carsNum != null && req.headers.carsNum != "" && req.headers.carsNum != "undefined"){
-        req.headers.carsNum;
-    } else {
-        carsNum=5;
-    }
-    //console.debug("carsNum "+req.headers.carsNum);
-    let searchModel = req.body;
-    //console.debug("searchModel "+JSON.stringify(searchModel));
-    
     let whereCar = {};
     let whereCarType = {path:'carType'};
     let match = {};
     
     if(searchModel.freeSearch != null && searchModel.freeSearch != "" && searchModel.freeSearch != "undefined"){
         match = {$or: [{ carFirm: { $regex: searchModel.freeSearch, $options: "i" } }, { carModel: { $regex: searchModel.freeSearch, $options: "i" } }]};
-        //whereCar.carNumber = { $regex: searchModel.freeSearch, $options: "i" };
         whereCarType.match=match;
-        //console.debug("whereCar "+ JSON.stringify(whereCar));
-        //console.debug("whereCarType "+ JSON.stringify(whereCarType));
     }
 
     if(searchModel.company != null && searchModel.company != "" && searchModel.company != "undefined"){
         match.carFirm = searchModel.company;
         whereCarType.match=match;
-        //console.debug("whereCarType "+ JSON.stringify(whereCarType));
     }
 
     if(searchModel.carType != null && searchModel.carType != "" && searchModel.carType != "undefined"){
         match.carType = searchModel.carType;
         whereCarType.match=match;
-        //console.debug("whereCarType "+ JSON.stringify(whereCarType));
     }
 
     if(searchModel.gear != null && searchModel.gear != "" && searchModel.gear != "undefined"){
         match.carGear = searchModel.gear;
         whereCarType.match=match;
-        //console.debug("whereCarType "+ JSON.stringify(whereCarType));
     }
 
     if(searchModel.year != null && searchModel.year != "" && searchModel.year != "undefined" && searchModel.year != 0){
         match.carYear = searchModel.year;
         whereCarType.match=match;
-        //console.debug("whereCarType "+ JSON.stringify(whereCarType));
     }
     
-    joinedModels.Car.find(whereCar).populate(whereCarType).populate("carBranch").sort('carNumber').exec(function (error, response) {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            response.forEach(EditArray);
-            if(response==null || response=="" || response=="undefined"){
-                searchReturnModel.fullCarsDataLenth = 0;
-            } else{
-                searchReturnModel.fullCarsDataLenth = fullCars.length;
-            }
-            fullCars = fullCars.slice(page * carsNum, page * carsNum + carsNum);
-            searchReturnModel.fullCarsData = fullCars;
-            searchReturnModel.fullCarsDataPage = page;
-            fullCars=[];
-            res.status(HttpStatus.OK).json(searchReturnModel);
+    return joinedModels.Car.find(whereCar).populate(whereCarType).populate("carBranch").sort('carNumber')
+    .then(response => {              
+        response.forEach(EditArray);
+        if(response==null || response=="" || response=="undefined"){
+            searchReturnModel.fullCarsDataLenth = 0;
+        } else{
+            searchReturnModel.fullCarsDataLenth = fullCars.length;
         }
-    });
+        fullCars = fullCars.slice(page * carsNum, page * carsNum + carsNum);
+        searchReturnModel.fullCarsData = fullCars;
+        searchReturnModel.fullCarsDataPage = page;
+        fullCars=[];
+        return searchReturnModel;
+    })
+    .catch(error => 
+        {
+            throw Error(error);
+        }
+    );
 }
 
 module.exports ={

@@ -2,7 +2,6 @@ const roleSchema = require("../models/Role");
 const branchSchema = require("../models/branch");
 const cartypeSchema = require("../models/cartype");
 const carSchema = require("../models/car");
-var HttpStatus = require('http-status-codes');
 
 let t = true;
 let f = false;
@@ -89,46 +88,39 @@ let data = [
 function AddRole(newRole){
     return newRole.save().then((response) => {
         console.debug("Role successfully added!");
-        //console.debug(response);
         return response;
     }).catch(error => {
         console.error(error);
-        return error;
+        throw Error(error);
     });
 }
 
 function AddBranch(newBranch){
     return newBranch.save().then((response) => {
-        //console.log("Branch successfully added!");
-        //console.debug(response);
-        //branches.push(response);
         return response;
     }).catch(error => {
         console.error(error);
-        return error;
+        throw Error(error);
     });
 }
 
 function AddCarType(newCarType){
     return newCarType.save().then((response) => {
-        //console.log("CarType successfully added!");
-        //console.debug(response);
-        //carTypes.push(response);
+        console.log("CarType successfully added!");
         return response;
     }).catch(error => {
         console.error(error);
-        return error;
+        throw Error(error);
     });
 }
 
 function AddCar(newCar){
     return newCar.save().then((response) => {
-        //console.log("Car successfully added!");
-        //console.debug(response);
+        console.log("Car successfully added!");
         return response;
     }).catch(error => {
         console.error(error);
-        return error;
+        throw Error(error);
     });
 }
 
@@ -136,11 +128,9 @@ function LoopAdding(){
     AddBranch(new branchSchema(data[i].branchModel)).then(
         (branchModel)=> {
             data[i].carModel.carBranch=branchModel._id;
-            //console.debug(branchModel);
             AddCarType(new cartypeSchema(data[i].carTypeModel)).then(
                 (carTypeModel)=> {
                     data[i].carModel.carType=carTypeModel._id;
-                    //console.debug(carTypeModel);
                     AddCar(new carSchema(data[i].carModel)).then(
                         (carModel)=> {
                             console.debug(carModel);

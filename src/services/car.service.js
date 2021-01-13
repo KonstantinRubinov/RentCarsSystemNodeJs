@@ -1,77 +1,57 @@
-// services/car.service.js
-
-const express = require("express");
 const carSchema = require("../models/Car");
-const carPictureSchema = require("../models/CarPicture");
-var HttpStatus = require('http-status-codes');
 var fs = require('fs');
 
-// Get Cars
-function GetAllCars(req, res, next){
-    carSchema.find({},(error, response) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            //console.debug(response + " Cars");
-            res.status(HttpStatus.OK).json(response);
-        }
-    })
+function GetAllCars(){
+    try {
+        var cars = carSchema.find();
+        return cars;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Get Car by number
-function GetOneCar(req, res, next){
-    const carNumber = req.params.carNumber;
-    carSchema.findOne({carNumber: carNumber}, (error, response) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            //console.debug(response + " Cars");
-            res.status(HttpStatus.OK).json(response);
-        }
-    })
+function GetOneCar(carNumber){
+    try {
+        var car = carSchema.findOne({carNumber: carNumber});
+        return car;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Add Car
-function AddCar(req, res, next){
-    const newCar = new carSchema(req.body);
-    // console.debug(newCar);
-    newCar.save().then((response) => {
-        res.status(HttpStatus.CREATED).json({
-            message: "Car successfully added!",
-            result: response
-        });
+function AddCar(body){
+    const newCar = new carSchema(body);
+    return newCar.save().then((response) => {
+        return response;
     }).catch(error => {
-        console.error(error);
-        return next(error);
+        throw Error(error);
     });
 }
 
-// Update Car
-function UpdateCar(req, res, next){
-    const carNumber = req.params.carNumber;
-    carSchema.findOneAndUpdate({carNumber: carNumber}, {$set: req.body}, (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('Car ' + carNumber + ' successfully updated!')
-            res.status(HttpStatus.OK).json(data);
-        }
-    })
+function UpdateCar(carNumber, body){
+    try {
+        var car = carSchema.findOneAndUpdate(carNumber, {$set: body});
+        return car;
+    } catch (error) {
+        throw Error(error);
+    }
 }
 
-// Delete Car By Number
-function DeleteCar(req, res, next){
-    const carNumber = req.params.carNumber;
-    carSchema.remove({carNumber: carNumber}, (error, data) => {
+function DeleteCar(carNumber){
+    try {
+        var car = carSchema.findOneAndRemove({carNumber: carNumber});
+        return car;
+    } catch (error) {
+        throw Error(error);
+    }
+}
+
+function DeleteCars(){
+    carSchema.deleteMany((error, data) => {
         if (error) {
-            console.error(error);
-            return next(error);
+            throw Error(error);
         } else {
-            console.log('Car ' + carNumber + ' successfully deleted!')
-            res.status(HttpStatus.NO_CONTENT).json({result: data})
+            return data;
         }
     })
 }
@@ -82,39 +62,32 @@ function createGuid(){
     }  
     return (S4() + S4() + "-" + S4() + "-4" + S4().substr(0,3) + "-" + S4() + "-" + S4() + S4() + S4()).toLowerCase();  
 }
- 
-// UploadCarImage
-function UploadCarImage(req, res, next){
-    let extension = req.body.carPicture.split(".");
+
+function UploadCarImage(carPicture, carImage, carNumber){
+    let extension = carPicture.split(".");
     extension = extension[extension.length-1];
     let pictureName = createGuid()+"."+extension;
     let filePath = "./src/assets/images/cars/"+pictureName;
-    req.body.carImage = req.body.carImage.replace(/^data:image\/\w+;base64,/, "");
-    req.body.carImage = req.body.carImage.replace(/ /g, '+');
-    let buff = new Buffer.from(req.body.carImage, 'base64');
+    carImage = carImage.replace(/^data:image\/\w+;base64,/, "");
+    carImage = carImage.replace(/ /g, '+');
+    let buff = new Buffer.from(carImage, 'base64');
     
     let fd =  fs.openSync(filePath, 'w');
     fs.write(fd, buff, 0, buff.length, 0, function(err,written){
         console.error( ">> "+ err );
         fs.closeSync( fd );
     });
-    
-    const carNumber = req.params.carNumber;
-    carSchema.findOneAndUpdate({carNumber: carNumber}, {pictureName: pictureName},
-        (error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('Image successfully updated!')
-            res.status(HttpStatus.OK).json(data);
-        }
-    })
+
+    try {
+        var car = carSchema.findOneAndUpdate(carNumber, {pictureName: pictureName});
+        return car;
+    } catch (error) {
+        throw Error(error);
+    }
 };
 
-//Get Car Images
-function GetCarImages(req, res, next){
-    carSchema.find({},(error, response) => {
+function GetCarImages(){
+    var cars = carSchema.find({},(error, response) => {
         if (error) {
             console.error(error);
             return next(error);
@@ -123,24 +96,13 @@ function GetCarImages(req, res, next){
                 .GroupBy(function(item) { return item.carPicture; })
                 .Select(function(item) { return {"carPictureLink":"/src/assets/images/cars/" + item.source[0].carPicture, "carPictureName":item.source[0].carPicture, "numberOfCars": item.source.length}; })
                 .ToArray();
-            //console.debug(groupedByPicture + " Cars");
-            res.status(HttpStatus.OK).json(groupedByPicture);
+            return groupedByPicture;
         }
     })
+    return cars;
 }
 
-// Delete Cars
-function DeleteCars(req, res, next){
-    carSchema.deleteMany((error, data) => {
-        if (error) {
-            console.error(error);
-            return next(error);
-        } else {
-            console.log('All cars has been removed!');
-            res.status(HttpStatus.NO_CONTENT).json({result: data});
-        }
-    })
-}
+
 
 module.exports ={
     GetAllCars:GetAllCars,
@@ -148,7 +110,7 @@ module.exports ={
     AddCar:AddCar,
     UpdateCar:UpdateCar,
     DeleteCar:DeleteCar,
+    DeleteCars:DeleteCars,
     UploadCarImage:UploadCarImage,
-    GetCarImages:GetCarImages,
-    DeleteCars:DeleteCars
+    GetCarImages:GetCarImages
 };
